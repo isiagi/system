@@ -37,10 +37,7 @@ export function ReusableForm({
   fields,
   onSubmit,
 }: ReusableFormProps) {
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues,
-  });
+  const form = useForm();
 
   return (
     <Form {...form}>

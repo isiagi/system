@@ -35,7 +35,7 @@ const activityFormSchema = z.object({
   gps_location: z.string().nonempty("GPS location is required."),
 });
 
-export function ProfileForm() {
+export function ProfileForm({ formField }) {
   const defaultValues = {
     activity_date: "",
     division: "",
@@ -53,7 +53,7 @@ export function ProfileForm() {
     <ReusableForm
       schema={activityFormSchema}
       defaultValues={defaultValues}
-      fields={formFields}
+      fields={formField}
       onSubmit={handleSubmit}
     />
   );

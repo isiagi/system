@@ -32,16 +32,24 @@ const sectionList = [
     title: "Community / Households",
     link: "community",
     options: [
-      { id: 1, title: "Household Door to Door Sensitizations", link: "/hello" },
-      { id: 2, title: "WASH and Solid Waste Management", link: "/" },
-      { id: 3, title: "Sewer Connection", link: "/" },
+      {
+        id: 1,
+        title: "Household Door to Door Sensitizations",
+        link: "/household",
+      },
+      { id: 2, title: "WASH and Solid Waste Management", link: "/wash" },
+      { id: 3, title: "Sewer Connection", link: "/sewer" },
     ],
   },
   {
     id: 2,
     title: "Institution Sanitation",
     link: "institution",
-    // options: ["Division Offices", "Health Centres", "Public Schools"],
+    options: [
+      { id: 1, title: "Division Offices", link: "/division" },
+      { id: 2, title: "Health Centres", link: "/health" },
+      { id: 3, title: "Public Schools", link: "/school" },
+    ],
   },
   {
     id: 3,
@@ -55,23 +63,24 @@ const sectionList = [
     link: "commercial",
     // options: ["All"],
   },
-  {
-    id: 5,
-    title: "Private Sector",
-    link: "private",
-    // options: ["All"],
-  },
-  {
-    id: 6,
-    title: "Knowledge",
-    link: "private",
-    // options: [
-    //   "Peer to Peer Engagements",
-    //   "Abstracts and Papers",
-    //   "Report Writing",
-    // ],
-  },
 ];
+
+// {
+//   id: 5,
+//   title: "Private Sector",
+//   link: "private",
+//   // options: ["All"],
+// },
+// {
+//   id: 6,
+//   title: "Knowledge",
+//   link: "private",
+//   // options: [
+//   //   "Peer to Peer Engagements",
+//   //   "Abstracts and Papers",
+//   //   "Report Writing",
+//   // ],
+// },
 
 function Home() {
   const navigate = useNavigate();
@@ -83,7 +92,7 @@ function Home() {
 
   const getLocationName = async () => {
     if (!position.latitude || !position.longitude) {
-      alert("Please enter both latitude and longitude");
+      // alert("Please enter both latitude and longitude");
       return;
     }
 
@@ -179,7 +188,7 @@ function Home() {
                   ) : (
                     <Link to={`/${link}`} key={id}>
                       <div className="border rounded-lg py-2 px-2">
-                        <p>{title}</p>
+                        <p className="text-lg">{title}</p>
                       </div>
                     </Link>
                   )
@@ -207,9 +216,9 @@ function Home() {
           </DropdownMenu>
         </div>
       </header>
-      <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-4 lg:gap-8 md:fixed">
+      <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-4 lg:gap-8 md:fixed px-5">
         <div className="hidden lg:col-span-1 lg:block">
-          <div>
+          <div className="py-5">
             <div className="grid gap-3">
               {sectionList.map(({ id, title, link, options }) =>
                 options ? (
@@ -233,7 +242,7 @@ function Home() {
                 ) : (
                   <Link to={`/${link}`} key={id}>
                     <div className="border rounded-lg py-2 px-2">
-                      <p>{title}</p>
+                      <p className="text-sm">{title}</p>
                     </div>
                   </Link>
                 )
@@ -241,19 +250,21 @@ function Home() {
             </div>
           </div>
         </div>
-        <div className="lg:col-span-2 md:overflow-y-auto md:max-h-[90vh] bg-white">
+        <div className="lg:col-span-2 md:overflow-y-auto md:max-h-[90vh] bg-white py-5 px-1">
           <Outlet />
         </div>
-        <div className="hidden md:block">
+        <div className="hidden md:block py-5">
           <h2>My Current Location</h2>
           {position.latitude && position.longitude ? (
-            <p>
+            <p className="text-sm">
               Latitude: {position.latitude}, Longitude: {position.longitude}
             </p>
           ) : (
             <p>Loading...</p>
           )}
-          <p>{locationName}</p>
+
+          <p className="w-[10px] h-[10px] rounded-full bg-green-700" />
+          <p className="text-sm">{locationName}</p>
         </div>
       </div>
     </div>
