@@ -85,7 +85,7 @@ const sectionList = [
 function Home() {
   const navigate = useNavigate();
 
-  const [position, setPosition] = useState({ latitude: null, longitude: null });
+  const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
   const [locationName, setLocationName] = useState("");
 
   const apiKey = "AIzaSyAu20JbWiiLjfp0lhJN6xqfAgKL9xaa3Xk"; // Replace with your API key
