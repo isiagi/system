@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { zodResolver } from "@hookform/resolvers/zod";
+// import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FieldValues } from "react-hook-form";
-import { z, ZodType } from "zod";
-import { Label } from "./ui/label";
+import { ZodType } from "zod";
+// import { Label } from "./ui/label";
 
 interface FormFieldConfig {
   name: string;
@@ -37,10 +37,7 @@ export function ReusableForm({
   fields,
   onSubmit,
 }: ReusableFormProps) {
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues,
-  });
+  const form = useForm();
 
   return (
     <Form {...form}>

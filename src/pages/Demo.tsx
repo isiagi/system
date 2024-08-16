@@ -1,20 +1,7 @@
 "use client";
 
 import { ReusableForm } from "@/components/ResuableForm";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { formFields } from "@/utils/formData";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, FieldValues } from "react-hook-form";
+import { FieldValues } from "react-hook-form";
 import { z } from "zod";
 
 interface FormFieldConfig {
@@ -35,7 +22,7 @@ const activityFormSchema = z.object({
   gps_location: z.string().nonempty("GPS location is required."),
 });
 
-export function ProfileForm() {
+export function ProfileForm({ formField }) {
   const defaultValues = {
     activity_date: "",
     division: "",
@@ -53,7 +40,7 @@ export function ProfileForm() {
     <ReusableForm
       schema={activityFormSchema}
       defaultValues={defaultValues}
-      fields={formFields}
+      fields={formField}
       onSubmit={handleSubmit}
     />
   );

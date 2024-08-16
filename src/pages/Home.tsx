@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "../components/ui/button";
 import {
   DropdownMenu,
@@ -9,9 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CircleUser, Menu, Package2 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-
 import { Link, Outlet, useNavigate } from "react-router-dom";
-
 import {
   Select,
   SelectContent,
@@ -20,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 const sectionList = [
   {
@@ -33,19 +33,24 @@ const sectionList = [
     title: "Community / Households",
     link: "community",
     options: [
-      { id: 1, title: "Household Door to Door Sensitizations" },
-      { id: 2, title: "WASH and Solid Waste Management" },
-      { id: 3, title: "Sewer Connection", link: "/" },
-      //   "Menstrual Hygiene Management",
-      //   "Solid Waste Management",
-      //   "Community Clean Ups",
+      {
+        id: 1,
+        title: "Household Door to Door Sensitizations",
+        link: "/household",
+      },
+      { id: 2, title: "WASH and Solid Waste Management", link: "/wash" },
+      { id: 3, title: "Sewer Connection", link: "/sewer" },
     ],
   },
   {
     id: 2,
     title: "Institution Sanitation",
     link: "institution",
-    // options: ["Division Offices", "Health Centres", "Public Schools"],
+    options: [
+      { id: 1, title: "Division Offices", link: "/division" },
+      { id: 2, title: "Health Centres", link: "/health" },
+      { id: 3, title: "Public Schools", link: "/school" },
+    ],
   },
   {
     id: 3,
@@ -59,27 +64,53 @@ const sectionList = [
     link: "commercial",
     // options: ["All"],
   },
-  {
-    id: 5,
-    title: "Private Sector",
-    link: "private",
-    // options: ["All"],
-  },
-  {
-    id: 6,
-    title: "Knowledge",
-    link: "private",
-    // options: [
-    //   "Peer to Peer Engagements",
-    //   "Abstracts and Papers",
-    //   "Report Writing",
-    // ],
-  },
 ];
+
+// {
+//   id: 5,
+//   title: "Private Sector",
+//   link: "private",
+//   // options: ["All"],
+// },
+// {
+//   id: 6,
+//   title: "Knowledge",
+//   link: "private",
+//   // options: [
+//   //   "Peer to Peer Engagements",
+//   //   "Abstracts and Papers",
+//   //   "Report Writing",
+//   // ],
+// },
 
 function Home() {
   const navigate = useNavigate();
-  const [position, setPosition] = useState({ latitude: null, longitude: null });
+
+  const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
+  const [locationName, setLocationName] = useState("");
+
+  const apiKey = "AIzaSyAu20JbWiiLjfp0lhJN6xqfAgKL9xaa3Xk"; // Replace with your API key
+
+  const getLocationName = async () => {
+    if (!position.latitude || !position.longitude) {
+      // alert("Please enter both latitude and longitude");
+      return;
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=${apiKey}`;
+    try {
+      const response = await axios.get(url);
+      const results = response.data.results;
+      if (results.length > 0) {
+        setLocationName(results[0].formatted_address);
+      } else {
+        setLocationName("No address found");
+      }
+    } catch (error) {
+      console.error("Error fetching location data:", error);
+      setLocationName("Error fetching location data");
+    }
+  };
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -89,10 +120,22 @@ function Home() {
           longitude: position.coords.longitude,
         });
       });
+
+      getLocationName();
     } else {
       console.log("Geolocation is not available in your browser.");
     }
-  }, []);
+  }, [position.latitude, position.longitude]);
+
+  const handleSelectChange = (value: any, options: any) => {
+    const selectedOption = options.find(
+      (option: any) => option.title === value
+    );
+    if (selectedOption) {
+      navigate(selectedOption.link);
+    }
+  };
+
   return (
     <div className="">
       <header className="sticky top-0 flex justify-between h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
@@ -115,7 +158,6 @@ function Home() {
               className="shrink-0 md:hidden"
             >
               <Menu className="h-5 w-5" />
-
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
@@ -125,19 +167,36 @@ function Home() {
                 <Package2 className="h-6 w-6" />
                 <span className="sr-only">Acme Inc</span>
               </div>
-              <div className="text-muted-foreground hover:text-foreground">
-                Dashboard
+
+              <div>
+                {sectionList.map(({ id, title, link, options }) =>
+                  options ? (
+                    <Select
+                      key={id}
+                      onValueChange={(value) =>
+                        handleSelectChange(value, options)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={title} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.map((option) => (
+                          <SelectItem key={option.id} value={option.title}>
+                            {option.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Link to={`/${link}`} key={id}>
+                      <div className="border rounded-lg py-2 px-2">
+                        <p className="text-lg">{title}</p>
+                      </div>
+                    </Link>
+                  )
+                )}
               </div>
-              <div className="text-muted-foreground hover:text-foreground">
-                Orders
-              </div>
-              <div className="text-muted-foreground hover:text-foreground">
-                Products
-              </div>
-              <div className="text-muted-foreground hover:text-foreground">
-                Customers
-              </div>
-              <div className="hover:text-foreground">Settings</div>
             </nav>
           </SheetContent>
         </Sheet>
@@ -160,48 +219,55 @@ function Home() {
           </DropdownMenu>
         </div>
       </header>
-      <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-4 lg:gap-8 md:fixed">
-        <div className="">
-          <div>
+      <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-4 lg:gap-8 md:fixed px-5">
+        <div className="hidden lg:col-span-1 lg:block">
+          <div className="py-5">
             <div className="grid gap-3">
-              {sectionList.map(({ id, title, link, options }) => (
-                // <Link to={`/${link}`}>
-                //   <div key={id} className="border rounded-lg py-2 px-2">
-                //     <p>{title}</p>
-                //   </div>
-                // </Link>
-                <>
-                  <Select>
+              {sectionList.map(({ id, title, link, options }) =>
+                options ? (
+                  <Select
+                    key={id}
+                    onValueChange={(value) =>
+                      handleSelectChange(value, options)
+                    }
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder={title} />
                     </SelectTrigger>
                     <SelectContent>
-                      {options?.map((option) => (
-                        <Link to={`/${"hello"}/`}>
-                          <SelectItem value={option.title}>
-                            {option.title}
-                          </SelectItem>
-                        </Link>
+                      {options.map((option) => (
+                        <SelectItem key={option.id} value={option.title}>
+                          {option.title}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </>
-              ))}
+                ) : (
+                  <Link to={`/${link}`} key={id}>
+                    <div className="border rounded-lg py-2 px-2">
+                      <p className="text-sm">{title}</p>
+                    </div>
+                  </Link>
+                )
+              )}
             </div>
           </div>
         </div>
-        <div className="lg:col-span-2 md:overflow-y-auto md:max-h-[90vh] bg-white">
+        <div className="lg:col-span-2 md:overflow-y-auto md:max-h-[90vh] bg-white py-5 px-1">
           <Outlet />
         </div>
-        <div className=" ">
+        <div className="hidden md:block py-5">
           <h2>My Current Location</h2>
           {position.latitude && position.longitude ? (
-            <p>
+            <p className="text-sm">
               Latitude: {position.latitude}, Longitude: {position.longitude}
             </p>
           ) : (
             <p>Loading...</p>
           )}
+
+          <p className="w-[10px] h-[10px] rounded-full bg-green-700" />
+          <p className="text-sm">{locationName}</p>
         </div>
       </div>
     </div>
