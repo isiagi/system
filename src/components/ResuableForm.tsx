@@ -32,8 +32,8 @@ interface ReusableFormProps {
 }
 
 export function ReusableForm({
-  schema,
-  defaultValues,
+  // schema,
+  // defaultValues,
   fields,
   onSubmit,
 }: ReusableFormProps) {
