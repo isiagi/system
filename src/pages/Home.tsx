@@ -9,9 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CircleUser, Menu, Package2 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-
 import { Link, Outlet, useNavigate } from "react-router-dom";
-
 import {
   Select,
   SelectContent,
@@ -33,12 +31,9 @@ const sectionList = [
     title: "Community / Households",
     link: "community",
     options: [
-      { id: 1, title: "Household Door to Door Sensitizations" },
-      { id: 2, title: "WASH and Solid Waste Management" },
+      { id: 1, title: "Household Door to Door Sensitizations", link: "/hello" },
+      { id: 2, title: "WASH and Solid Waste Management", link: "/" },
       { id: 3, title: "Sewer Connection", link: "/" },
-      //   "Menstrual Hygiene Management",
-      //   "Solid Waste Management",
-      //   "Community Clean Ups",
     ],
   },
   {
@@ -79,6 +74,7 @@ const sectionList = [
 
 function Home() {
   const navigate = useNavigate();
+
   const [position, setPosition] = useState({ latitude: null, longitude: null });
 
   useEffect(() => {
@@ -93,6 +89,14 @@ function Home() {
       console.log("Geolocation is not available in your browser.");
     }
   }, []);
+
+  const handleSelectChange = (value, options) => {
+    const selectedOption = options.find((option) => option.title === value);
+    if (selectedOption) {
+      navigate(selectedOption.link);
+    }
+  };
+
   return (
     <div className="">
       <header className="sticky top-0 flex justify-between h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
@@ -115,7 +119,6 @@ function Home() {
               className="shrink-0 md:hidden"
             >
               <Menu className="h-5 w-5" />
-
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
@@ -164,29 +167,33 @@ function Home() {
         <div className="">
           <div>
             <div className="grid gap-3">
-              {sectionList.map(({ id, title, link, options }) => (
-                // <Link to={`/${link}`}>
-                //   <div key={id} className="border rounded-lg py-2 px-2">
-                //     <p>{title}</p>
-                //   </div>
-                // </Link>
-                <>
-                  <Select>
+              {sectionList.map(({ id, title, link, options }) =>
+                options ? (
+                  <Select
+                    key={id}
+                    onValueChange={(value) =>
+                      handleSelectChange(value, options)
+                    }
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder={title} />
                     </SelectTrigger>
                     <SelectContent>
-                      {options?.map((option) => (
-                        <Link to={`/${"hello"}/`}>
-                          <SelectItem value={option.title}>
-                            {option.title}
-                          </SelectItem>
-                        </Link>
+                      {options.map((option) => (
+                        <SelectItem key={option.id} value={option.title}>
+                          {option.title}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </>
-              ))}
+                ) : (
+                  <Link to={`/${link}`} key={id}>
+                    <div className="border rounded-lg py-2 px-2">
+                      <p>{title}</p>
+                    </div>
+                  </Link>
+                )
+              )}
             </div>
           </div>
         </div>
