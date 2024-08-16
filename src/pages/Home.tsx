@@ -9,7 +9,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CircleUser, Menu, Package2 } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import {
   Select,
@@ -168,32 +173,37 @@ function Home() {
                 <span className="sr-only">Acme Inc</span>
               </div>
 
-              <div>
+              <div className="grid gap-3">
                 {sectionList.map(({ id, title, link, options }) =>
                   options ? (
-                    <Select
-                      key={id}
-                      onValueChange={(value) =>
-                        handleSelectChange(value, options)
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={title} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {options.map((option) => (
-                          <SelectItem key={option.id} value={option.title}>
-                            {option.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <SheetClose>
+                      <Select
+                        key={id}
+                        onValueChange={(value) =>
+                          handleSelectChange(value, options)
+                        }
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder={title} />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          {options.map((option) => (
+                            <SelectItem key={option.id} value={option.title}>
+                              {option.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </SheetClose>
                   ) : (
-                    <Link to={`/${link}`} key={id}>
-                      <div className="border rounded-lg py-2 px-2">
-                        <p className="text-lg">{title}</p>
-                      </div>
-                    </Link>
+                    <SheetClose asChild>
+                      <Link to={`/${link}`} key={id}>
+                        <div className="border rounded-lg py-2 px-2">
+                          <p className="text-sm">{title}</p>
+                        </div>
+                      </Link>
+                    </SheetClose>
                   )
                 )}
               </div>
