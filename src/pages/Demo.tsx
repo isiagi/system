@@ -1,20 +1,7 @@
 "use client";
 
 import { ReusableForm } from "@/components/ResuableForm";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { formFields } from "@/utils/formData";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, FieldValues } from "react-hook-form";
+import { FieldValues } from "react-hook-form";
 import { z } from "zod";
 
 interface FormFieldConfig {
