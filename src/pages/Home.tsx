@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
+import axios from "axios";
 
 const sectionList = [
   {
@@ -76,6 +77,30 @@ function Home() {
   const navigate = useNavigate();
 
   const [position, setPosition] = useState({ latitude: null, longitude: null });
+  const [locationName, setLocationName] = useState("");
+
+  const apiKey = "AIzaSyAu20JbWiiLjfp0lhJN6xqfAgKL9xaa3Xk"; // Replace with your API key
+
+  const getLocationName = async () => {
+    if (!position.latitude || !position.longitude) {
+      alert("Please enter both latitude and longitude");
+      return;
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=${apiKey}`;
+    try {
+      const response = await axios.get(url);
+      const results = response.data.results;
+      if (results.length > 0) {
+        setLocationName(results[0].formatted_address);
+      } else {
+        setLocationName("No address found");
+      }
+    } catch (error) {
+      console.error("Error fetching location data:", error);
+      setLocationName("Error fetching location data");
+    }
+  };
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -85,10 +110,12 @@ function Home() {
           longitude: position.coords.longitude,
         });
       });
+
+      getLocationName();
     } else {
       console.log("Geolocation is not available in your browser.");
     }
-  }, []);
+  }, [position.latitude, position.longitude]);
 
   const handleSelectChange = (value, options) => {
     const selectedOption = options.find((option) => option.title === value);
@@ -226,6 +253,7 @@ function Home() {
           ) : (
             <p>Loading...</p>
           )}
+          <p>{locationName}</p>
         </div>
       </div>
     </div>
