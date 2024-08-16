@@ -1,17 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { ReusableForm } from "@/components/ResuableForm";
 import { FieldValues } from "react-hook-form";
 import { z } from "zod";
 
-interface FormFieldConfig {
-  name: string;
-  label: string;
-  placeholder?: string;
-  description?: string;
-  type: "text" | "radio";
-  options?: { label: string; value: string }[]; // For radio buttons
-}
+// interface FormFieldConfig {
+//   name: string;
+//   label: string;
+//   placeholder?: string;
+//   description?: string;
+//   type: "text" | "radio";
+//   options?: { label: string; value: string }[]; // For radio buttons
+// }
 
 const activityFormSchema = z.object({
   activity_date: z.string().nonempty("Date is required."),
@@ -22,7 +23,7 @@ const activityFormSchema = z.object({
   gps_location: z.string().nonempty("GPS location is required."),
 });
 
-export function ProfileForm({ formField }) {
+export function ProfileForm({ formField }: any) {
   const defaultValues = {
     activity_date: "",
     division: "",
