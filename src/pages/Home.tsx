@@ -128,19 +128,36 @@ function Home() {
                 <Package2 className="h-6 w-6" />
                 <span className="sr-only">Acme Inc</span>
               </div>
-              <div className="text-muted-foreground hover:text-foreground">
-                Dashboard
+
+              <div>
+                {sectionList.map(({ id, title, link, options }) =>
+                  options ? (
+                    <Select
+                      key={id}
+                      onValueChange={(value) =>
+                        handleSelectChange(value, options)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={title} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.map((option) => (
+                          <SelectItem key={option.id} value={option.title}>
+                            {option.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Link to={`/${link}`} key={id}>
+                      <div className="border rounded-lg py-2 px-2">
+                        <p>{title}</p>
+                      </div>
+                    </Link>
+                  )
+                )}
               </div>
-              <div className="text-muted-foreground hover:text-foreground">
-                Orders
-              </div>
-              <div className="text-muted-foreground hover:text-foreground">
-                Products
-              </div>
-              <div className="text-muted-foreground hover:text-foreground">
-                Customers
-              </div>
-              <div className="hover:text-foreground">Settings</div>
             </nav>
           </SheetContent>
         </Sheet>
@@ -164,7 +181,7 @@ function Home() {
         </div>
       </header>
       <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-4 lg:gap-8 md:fixed">
-        <div className="">
+        <div className="hidden lg:col-span-1 lg:block">
           <div>
             <div className="grid gap-3">
               {sectionList.map(({ id, title, link, options }) =>
@@ -200,7 +217,7 @@ function Home() {
         <div className="lg:col-span-2 md:overflow-y-auto md:max-h-[90vh] bg-white">
           <Outlet />
         </div>
-        <div className=" ">
+        <div className="hidden md:block">
           <h2>My Current Location</h2>
           {position.latitude && position.longitude ? (
             <p>
