@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "../components/ui/button";
 import {
   DropdownMenu,
@@ -126,8 +127,10 @@ function Home() {
     }
   }, [position.latitude, position.longitude]);
 
-  const handleSelectChange = (value, options) => {
-    const selectedOption = options.find((option) => option.title === value);
+  const handleSelectChange = (value: any, options: any) => {
+    const selectedOption = options.find(
+      (option: any) => option.title === value
+    );
     if (selectedOption) {
       navigate(selectedOption.link);
     }
