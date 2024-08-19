@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import Admin from "@/pages/Admin";
 import { ProfileForm } from "@/pages/Demo";
 import Home from "@/pages/Home";
 import Intro from "@/pages/Intro";
 import { LoginForm } from "@/pages/Login";
+import Questions from "@/pages/Questions";
 import {
   formFields,
   household,
@@ -15,19 +18,239 @@ import {
   commercialPremiseFormFields,
 } from "@/utils/formData";
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useParams,
+  Navigate,
+  // useNavigate,
+} from "react-router-dom";
 
-function index() {
+import { Button } from "../components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CircleUser, Menu, Package2 } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  // SheetClose,
+} from "@/components/ui/sheet";
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import Response from "@/pages/Response";
+import { axiosInstance } from "@/api/base";
+import Analytics from "@/pages/Analytics";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+function DynamicProfileForm() {
+  const { formType } = useParams();
+
+  // console.log(JSON.stringify(obj), "obj loading...");
+
+  // const formMappings = {
+  //   demographics: formFields,
+  //   wash,
+  //   household,
+  //   menstrual,
+  //   sewer,
+  //   school,
+  //   division,
+  //   health,
+  //   public: public_data,
+  //   commercial: commercialPremiseFormFields,
+  //   // Add other mappings here
+  // };
+
+  // const formField = formFields;
+
+  return <ProfileForm formField={formType} />;
+}
+
+function Index() {
+  const [section, setSection] = useState([]);
+
+  useEffect(() => {
+    // fetch section from django localhost
+    // const fetchSection = async () => {
+    //   const response = await fetch(
+    //     "http://127.0.0.1:8000/api/question/sections/"
+    //   );
+    //   const data = await response.json();
+    //   setSection(data);
+    //   console.log(data);
+    // };
+
+    const fetchSection = async () => {
+      const response = await axiosInstance.get("question/sections/");
+      const data = await response.data;
+      setSection(data);
+      console.log(data);
+    };
+
+    fetchSection();
+  }, []);
+  const obj = useParams();
+  // const navigate = Navigate();
+
+  console.log(JSON.stringify(obj), "obj loading...");
+
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      // navigate("/", { replace: true });
+
+      alert("Please login first");
+      <Navigate to="/" replace />;
+    }
+  }, []);
+
+  const handleLogOut = async () => {
+    try {
+      await axiosInstance.post("/auth/logout/");
+      localStorage.removeItem("token");
+      alert("Logged out successfully");
+      // navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSelectChange = (value: any, options: any) => {
+    const selectedOption = options.find(
+      (option: any) => option.title === value
+    );
+    if (selectedOption) {
+      // navigate(selectedOption.link);
+      <Navigate to={selectedOption.link} replace />;
+    }
+  };
+
   return (
     <Router>
+      <header className="sticky top-0 flex justify-between h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
+        <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+          <div className="flex items-center gap-2 text-lg font-semibold md:text-base">
+            <Package2 className="h-6 w-6" />
+            <span className="sr-only">Acme Inc</span>
+          </div>
+          <Link to={"/home"}>
+            <div className="text-muted-foreground transition-colors hover:text-foreground">
+              Home
+            </div>
+          </Link>
+
+          <Link to={"/questions"}>
+            <div className="text-muted-foreground transition-colors hover:text-foreground">
+              Questions
+            </div>
+          </Link>
+          <Link to={"/response"}>
+            <div className="text-muted-foreground transition-colors hover:text-foreground">
+              Response
+            </div>
+          </Link>
+          <Link to={"/analytics"}>
+            <div className="text-muted-foreground transition-colors hover:text-foreground">
+              Analytics
+            </div>
+          </Link>
+        </nav>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="shrink-0 md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle navigation menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left">
+            <nav className="grid gap-6 text-lg font-medium">
+              <div className="flex items-center gap-2 text-lg font-semibold">
+                <Package2 className="h-6 w-6" />
+                <span className="sr-only">Acme Inc</span>
+              </div>
+              <div className="grid gap-3">
+                {section.map(({ id, title, options }: any) =>
+                  options ? (
+                    <Select
+                      key={id}
+                      onValueChange={(value) =>
+                        handleSelectChange(value, options)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={title} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.map((option: any) => (
+                          <SelectItem key={option.id} value={option.title}>
+                            {option.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Link to={`/form/${title}`} key={id}>
+                      <div className="border rounded-lg py-2 px-2">
+                        <p className="text-sm">{title}</p>
+                      </div>
+                    </Link>
+                  )
+                )}
+              </div>
+            </nav>
+          </SheetContent>
+        </Sheet>
+        <div className="flex items-center gap-4 md:ml-auto md:gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="icon" className="rounded-full">
+                <CircleUser className="h-5 w-5" />
+                <span className="sr-only">Toggle user menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <h3 onClick={handleLogOut}>Logout</h3>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
       <Routes>
         <Route path="/" element={<LoginForm />} index />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/questions" element={<Questions />} />
+        <Route path="/response" element={<Response />} />
+        <Route path="/analytics" element={<Analytics />} />
         <Route element={<Home />}>
           <Route path="/home" element={<Intro />} index />
           <Route
             path="/demographics"
             element={<ProfileForm formField={formFields} />}
           />
+          <Route path="/form/:formType" element={<DynamicProfileForm />} />
           <Route path="/wash" element={<ProfileForm formField={wash} />} />
           <Route
             path="/household"
@@ -92,4 +315,4 @@ function index() {
   );
 }
 
-export default index;
+export default Index;
