@@ -134,7 +134,7 @@ function Index() {
     );
     if (selectedOption) {
       // navigate(selectedOption.link);
-      <Navigate to={selectedOption.link} replace />;
+      <Navigate to={selectedOption.id} replace />;
     }
   };
 
@@ -199,14 +199,14 @@ function Index() {
                       </SelectTrigger>
                       <SelectContent>
                         {options.map((option: any) => (
-                          <SelectItem key={option.id} value={option.title}>
+                          <SelectItem key={option.id} value={option.id}>
                             {option.title}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Link to={`/form/${title}`} key={id}>
+                    <Link to={`/form/${id}`} key={id}>
                       <div className="border rounded-lg py-2 px-2">
                         <p className="text-sm">{title}</p>
                       </div>

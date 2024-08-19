@@ -82,7 +82,7 @@ export function ProfileForm({ formField }: any) {
       const { value, type } = values[key];
 
       return {
-        response: "2", // Replace with actual response ID if available
+        response: "1", // Replace with actual response ID if available
         question: key, // Use the key as question ID
         answer_text:
           type === "input" || type === "textarea"

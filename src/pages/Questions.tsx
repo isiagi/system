@@ -253,7 +253,7 @@ function Questions() {
                   {/* map section */}
                   {section &&
                     section.map((section: any) => (
-                      <SelectItem key={section.id} value={section.title}>
+                      <SelectItem key={section.id} value={section.id}>
                         {section.title}
                       </SelectItem>
                     ))}

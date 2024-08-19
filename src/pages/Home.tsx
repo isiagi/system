@@ -175,7 +175,7 @@ function Home() {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <Link to={`/form/${title}`} key={id}>
+                  <Link to={`/form/${id}`} key={id}>
                     <div className="border rounded-lg py-2 px-2">
                       <p className="text-sm">{title}</p>
                     </div>
