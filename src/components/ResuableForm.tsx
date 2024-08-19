@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -10,38 +12,70 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-// import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FieldValues } from "react-hook-form";
-import { ZodType } from "zod";
-// import { Label } from "./ui/label";
 
-interface FormFieldConfig {
-  name: string;
-  label: string;
-  placeholder?: string;
-  description?: string;
-  type: "text" | "radio";
-  options?: { label: string; value: string }[]; // For radio buttons
-}
+// Mocking the questions array
+// const questions = [
+//   {
+//     id: 1,
+//     text: "What is love?",
+//     question_type: "input",
+//     options: [],
+//   },
+//   {
+//     id: 4,
+//     text: "What is love id?",
+//     question_type: "radio",
+//     options: [
+//       { label: "Option 1", value: "option1" },
+//       { label: "Option 2", value: "option2" },
+//       { label: "Option 3", value: "option3" },
+//     ],
+//   },
+//   // More questions...
+// ];
 
-interface ReusableFormProps {
-  schema: ZodType<any>;
-  defaultValues: FieldValues;
-  fields: FormFieldConfig[];
-  onSubmit: (values: FieldValues) => void;
-}
+// const field = questions.map((question) => ({
+//   name: `question_${question.id}`, // Unique name for each field
+//   label: question.text,
+//   type: question.question_type === "input" ? "text" : "radio",
+//   options: question.options.map((option) => ({
+//     label: option.label,
+//     value: option.value,
+//   })), // Only for radio type
+//   questionId: question.id.toString(), // Store the question id
+// }));
 
 export function ReusableForm({
-  // schema,
-  // defaultValues,
   fields,
   onSubmit,
-}: ReusableFormProps) {
+}: {
+  fields: any[];
+  onSubmit: (values: FieldValues) => void;
+}) {
   const form = useForm();
+
+  const handleSubmit = (values: FieldValues) => {
+    console.log(values, "values");
+    const formattedValues = fields.reduce((acc, field) => {
+      const value = values[field.name];
+      if (value !== undefined) {
+        acc[field.questionId] = {
+          value: value,
+          type: field.type,
+        }; // Use questionId as the key
+      }
+      return acc;
+    }, {} as Record<string, any>);
+
+    console.log(formattedValues, "formattedValues");
+
+    onSubmit(formattedValues);
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
         {fields.map((fieldConfig) => (
           <FormField
             key={fieldConfig.name}
@@ -52,16 +86,15 @@ export function ReusableForm({
                 <FormLabel>{fieldConfig.label}</FormLabel>
                 <FormControl>
                   <>
-                    {fieldConfig.type === "text" && (
+                    {fieldConfig.type === "input" && (
                       <Input placeholder={fieldConfig.placeholder} {...field} />
                     )}
                     {fieldConfig.type === "radio" && (
                       <RadioGroup
-                        defaultValue={fieldConfig.options?.[0].value}
                         onValueChange={field.onChange}
-                        {...field}
+                        value={field.value}
                       >
-                        {fieldConfig.options?.map(({ label, value }) => (
+                        {fieldConfig.options?.map(({ label, value }: any) => (
                           <div
                             key={value}
                             className="flex items-center space-x-2"
@@ -71,7 +104,6 @@ export function ReusableForm({
                               value={value}
                               id={value}
                             />
-
                             <FormLabel htmlFor={value} className="font-normal">
                               {label}
                             </FormLabel>
