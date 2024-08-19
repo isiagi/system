@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { axiosInstance } from "@/api/base";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Response() {
   const [section, setSection] = useState([]);
