@@ -27,17 +27,25 @@ import { useEffect, useState } from "react";
 
 export function ProfileForm({ formField }: any) {
   const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   console.log(questions);
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      const response = await axiosInstance.get(
-        `question/sections/${formField}/questions/`
-      );
-      const data = await response.data;
-      setQuestions(data);
-      console.log(data);
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(
+          `question/sections/${formField}/questions/`
+        );
+        const data = await response.data;
+        setQuestions(data);
+        console.log(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchQuestions();
@@ -132,6 +140,10 @@ export function ProfileForm({ formField }: any) {
   }));
 
   console.log(fields, "fields");
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <ReusableForm

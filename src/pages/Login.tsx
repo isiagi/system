@@ -58,7 +58,9 @@ export function LoginForm() {
     <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">
+            {loading ? "Logging In..." : "Login"}
+          </CardTitle>
           <CardDescription>
             Enter your username and password below to login to your account.
           </CardDescription>

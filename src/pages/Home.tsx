@@ -80,6 +80,7 @@ function Home() {
   const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
   const [locationName, setLocationName] = useState("");
   const [section, setSection] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // fetch section from django localhost
@@ -93,10 +94,17 @@ function Home() {
     // };
 
     const fetchSection = async () => {
-      const response = await axiosInstance.get("question/sections/");
-      const data = await response.data;
-      setSection(data);
-      console.log(data);
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get("question/sections/");
+        const data = await response.data;
+        setSection(data);
+        console.log(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchSection();
@@ -145,7 +153,7 @@ function Home() {
       (option: any) => option.title === value
     );
     if (selectedOption) {
-      navigate(selectedOption.link);
+      navigate(selectedOption.id);
     }
   };
 
@@ -155,31 +163,35 @@ function Home() {
         <div className="hidden lg:col-span-1 lg:block">
           <div className="py-5">
             <div className="grid gap-3">
-              {section.map(({ id, title, options }: any) =>
-                options ? (
-                  <Select
-                    key={id}
-                    onValueChange={(value) =>
-                      handleSelectChange(value, options)
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={title} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {options.map((option: any) => (
-                        <SelectItem key={option.id} value={option.title}>
-                          {option.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Link to={`/form/${id}`} key={id}>
-                    <div className="border rounded-lg py-2 px-2">
-                      <p className="text-sm">{title}</p>
-                    </div>
-                  </Link>
+              {loading ? (
+                <h3>Loading Sections ...</h3>
+              ) : (
+                section.map(({ id, title, options }: any) =>
+                  options ? (
+                    <Select
+                      key={id}
+                      onValueChange={(value) =>
+                        handleSelectChange(value, options)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={title} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.map((option: any) => (
+                          <SelectItem key={option.id} value={option.title}>
+                            {option.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Link to={`/form/${id}`} key={id}>
+                      <div className="border rounded-lg py-2 px-2">
+                        <p className="text-sm">{title}</p>
+                      </div>
+                    </Link>
+                  )
                 )
               )}
             </div>
