@@ -65,6 +65,9 @@ function Questions() {
     title: "",
     description: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
 
   const rowsPerPage = 4;
   const [startIndex, setStartIndex] = useState(0);
@@ -81,11 +84,18 @@ function Questions() {
     //   console.log(data, "questions");
     // };
     const fetchQuestions = async () => {
-      const response = await axiosInstance.get("question/questions/");
+      setLoading(true);
+      try {
+        const response = await axiosInstance.get("question/questions/");
 
-      const data = await response.data;
-      setQuestions(data);
-      console.log(data, "questions");
+        const data = await response.data;
+        setQuestions(data);
+        console.log(data, "questions");
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchQuestions();
@@ -182,6 +192,23 @@ function Questions() {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleDelete = async (id: any) => {
+    console.log("delete");
+    alert(id);
+    try {
+      await axiosInstance.delete(`question/questions/${id}/`);
+      // filterout the deleted question
+      setQuestions(questions.filter((question: any) => question.id !== id));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleEditClick = (question: any) => {
+    setSelectedQuestion(question); // Set the selected question data
+    setOpenEdit(true); // Open the edit modal
   };
 
   return (
@@ -326,32 +353,48 @@ function Questions() {
             <TableHead>Options</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
-          {questions.length > 0 &&
-            questions.slice(startIndex, endIndex).map((question: any) => (
-              <TableRow>
-                <TableCell>{question.text}</TableCell>
-                <TableCell>{question.section}</TableCell>
-                <TableCell>{question.question_type}</TableCell>
-                <TableCell>{question.options}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
+        {loading ? (
+          <TableBody className="text-center">Loading...</TableBody>
+        ) : (
+          <TableBody>
+            {questions.length > 0 &&
+              questions.slice(startIndex, endIndex).map((question: any) => (
+                <TableRow>
+                  <TableCell>{question.text}</TableCell>
+                  <TableCell>{question.section}</TableCell>
+                  <TableCell>{question.question_type}</TableCell>
+                  <TableCell>{question.options}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          aria-haspopup="true"
+                          size="icon"
+                          variant="ghost"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem>
+                          <h3 onClick={() => handleEditClick(question)}>
+                            Edit
+                          </h3>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <h3 onClick={() => handleDelete(question.id)}>
+                            Delete
+                          </h3>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        )}
       </Table>
       <Pagination>
         <PaginationContent>
@@ -380,8 +423,125 @@ function Questions() {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+      <EditComponent
+        open={openEdit}
+        setOpen={setOpenEdit}
+        selectedQuestion={selectedQuestion} // Pass the selected question data to the EditComponent
+        sections={section} // Pass sections for selection in the modal
+      />
     </div>
   );
 }
 
 export default Questions;
+
+function EditComponent({ open, setOpen, selectedQuestion, sections }: any) {
+  const [questionPost, setQuestionPost] = useState({
+    text: selectedQuestion?.text || "",
+    question_type: selectedQuestion?.question_type || "input",
+    section: selectedQuestion?.section || "",
+    options: selectedQuestion?.options?.join(",") || "",
+  });
+
+  useEffect(() => {
+    setQuestionPost({
+      text: selectedQuestion?.text || "",
+      question_type: selectedQuestion?.question_type || "input",
+      section: selectedQuestion?.section || "",
+      options: selectedQuestion?.options?.join(",") || "",
+    });
+  }, [selectedQuestion]);
+
+  const handleUpdate = async () => {
+    try {
+      const opt = questionPost.options.split(",");
+      await axiosInstance.put(`question/questions/${selectedQuestion.id}/`, {
+        text: questionPost.text,
+        question_type: questionPost.question_type,
+        section: questionPost.section,
+        options: opt,
+      });
+      alert("Question updated successfully");
+      setOpen(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Question</DialogTitle>
+        </DialogHeader>
+        <div>
+          <Label>Section</Label>
+          <Select
+            value={questionPost.section}
+            onValueChange={(value) =>
+              setQuestionPost({ ...questionPost, section: value })
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select Section" />
+            </SelectTrigger>
+            <SelectContent>
+              {sections &&
+                sections.map((section: any) => (
+                  <SelectItem key={section.id} value={section.id}>
+                    {section.title}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Question Type</Label>
+          <RadioGroup
+            value={questionPost.question_type}
+            onValueChange={(value) =>
+              setQuestionPost({ ...questionPost, question_type: value })
+            }
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="input" id="option-one" />
+              <Label htmlFor="option-one">Input</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="radio" id="option-two" />
+              <Label htmlFor="option-two">Radio</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        <div>
+          <Label>Title</Label>
+          <Input
+            value={questionPost.text}
+            onChange={(e) =>
+              setQuestionPost({ ...questionPost, text: e.target.value })
+            }
+          />
+        </div>
+
+        {questionPost.question_type === "radio" && (
+          <div>
+            <Label>Options</Label>
+            <Input
+              value={questionPost.options}
+              onChange={(e) =>
+                setQuestionPost({ ...questionPost, options: e.target.value })
+              }
+            />
+          </div>
+        )}
+        <DialogFooter>
+          <Button type="submit" onClick={handleUpdate}>
+            Update Question
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

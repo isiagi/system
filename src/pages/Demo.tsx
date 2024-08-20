@@ -122,10 +122,12 @@ export function ProfileForm({ formField }: any) {
     name: `question_${question.id}`, // Unique name for each field
     label: question.text,
     type: question.question_type === "input" ? "input" : "radio",
-    options: question.options.map((option: any) => ({
-      label: option,
-      value: option,
-    })), // Only for radio type
+    options:
+      question.options &&
+      question.options?.map((option: any) => ({
+        label: option,
+        value: option,
+      })), // Only for radio type
     questionId: question.id?.toString(), // Store the question id
   }));
 
