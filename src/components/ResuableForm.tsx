@@ -63,6 +63,8 @@ export function ReusableForm({
         acc[field.questionId] = {
           value: value,
           type: field.type,
+          section: field.section,
+          subsection: field.subsection,
         }; // Use questionId as the key
       }
       return acc;

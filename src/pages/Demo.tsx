@@ -3,6 +3,7 @@
 
 import { axiosInstance } from "@/api/base";
 import { ReusableForm } from "@/components/ResuableForm";
+import useSection from "@/store/section";
 import { useEffect, useState } from "react";
 // import { FieldValues } from "react-hook-form";
 // import { z } from "zod";
@@ -29,18 +30,21 @@ export function ProfileForm({ formField }: any) {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const showSection = useSection((state: any) => state.section);
+
   console.log(questions);
+  const route = showSection ? "subsections" : "section";
 
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
         setLoading(true);
         const response = await axiosInstance.get(
-          `question/sections/${formField}/questions/`
+          `question/${route}/${formField}/questions/`
         );
         const data = await response.data;
         setQuestions(data);
-        console.log(data);
+        console.log(data, "yyyyyyyyyyyyyyyyy");
       } catch (error) {
         console.log(error);
       } finally {
@@ -83,14 +87,20 @@ export function ProfileForm({ formField }: any) {
   //   });
 
   async function handleSubmit(
-    values: Record<string, { value: any; type: string }>
+    values: Record<
+      string,
+      { value: any; type: string; section: string; subsection: string }
+    >
   ) {
+    // console.log(responseId, "responseId");
     // Construct formattedAnswers from the `values` object
     const formattedAnswers = Object.keys(values).map((key) => {
-      const { value, type } = values[key];
+      const { value, type, section, subsection } = values[key];
+
+      const responseId = JSON.parse(localStorage.getItem("responseId"));
 
       return {
-        response: "1", // Replace with actual response ID if available
+        response: responseId, // Replace with actual response ID if available
         question: key, // Use the key as question ID
         answer_text:
           type === "input" || type === "textarea"
@@ -101,8 +111,12 @@ export function ProfileForm({ formField }: any) {
         answer_choice:
           type === "radio" ? (typeof value === "string" ? value : null) : null, // Handle choice-based answers
         question_type: type,
+        section: section,
+        subsection: subsection,
       };
     });
+
+    console.log(formattedAnswers, "formatted");
 
     try {
       // Send the formatted answers to the server
@@ -137,6 +151,9 @@ export function ProfileForm({ formField }: any) {
         value: option,
       })), // Only for radio type
     questionId: question.id?.toString(), // Store the question id
+    // section and subsection
+    section: question.section,
+    subsection: question.subsection,
   }));
 
   console.log(fields, "fields");
@@ -144,13 +161,16 @@ export function ProfileForm({ formField }: any) {
   if (loading) {
     return <div>Loading...</div>;
   }
+  // alert(showSection);
 
   return (
-    <ReusableForm
-      // schema={activityFormSchema}
-      // defaultValues={defaultValues}
-      fields={fields}
-      onSubmit={handleSubmit}
-    />
+    <>
+      <ReusableForm
+        // schema={activityFormSchema}
+        // defaultValues={defaultValues}
+        fields={fields}
+        onSubmit={handleSubmit}
+      />
+    </>
   );
 }

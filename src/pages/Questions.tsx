@@ -60,6 +60,8 @@ function Questions() {
     question_type: "input",
     section: "",
     options: "",
+    subsection: "",
+    subsubsection: "",
   });
   const [selectData, setSelectData] = useState({
     title: "",
@@ -68,6 +70,14 @@ function Questions() {
   const [loading, setLoading] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [subSections, setSubSections] = useState({
+    id: "",
+    title: "",
+  });
+  const [subSubSections, setSubSubSections] = useState({
+    id: "",
+    title: "",
+  });
 
   const rowsPerPage = 4;
   const [startIndex, setStartIndex] = useState(0);
@@ -179,6 +189,8 @@ function Questions() {
         question_type: questionPost.question_type,
         section: questionPost.section,
         options: opt,
+        subsection: questionPost.subsection,
+        subsubsection: questionPost.subsubsection,
       });
 
       const newQuestion = await response.data;
@@ -211,6 +223,32 @@ function Questions() {
     setOpenEdit(true); // Open the edit modal
   };
 
+  const handlePostSubSection = async () => {
+    try {
+      await axiosInstance.post(`question/subsections/`, {
+        title: subSections.title,
+        section: subSections.id,
+        description: "hello",
+      });
+      alert("SubSection added successfully");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handlePostSubSubSection = async () => {
+    try {
+      await axiosInstance.post(`question/subsubsections/`, {
+        title: subSubSections.title,
+        subsection: subSubSections.id,
+        description: "hello",
+      });
+      alert("SubSection 2 added successfully");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <h1>Questions</h1>
@@ -222,6 +260,8 @@ function Questions() {
           </div>
         ))} */}
       <div className="flex justify-end gap-5">
+        {/* <AddSection /> */}
+
         <Dialog>
           <DialogTrigger>
             <Button variant="outline">Add Section</Button>
@@ -257,6 +297,141 @@ function Questions() {
           </DialogContent>
         </Dialog>
 
+        {/* <AddSubSection /> */}
+
+        <Dialog>
+          <DialogTrigger>
+            <Button variant="outline">Add Sub Section</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you absolutely sure?</DialogTitle>
+            </DialogHeader>
+
+            {/* <div>
+              <Label>Title</Label>
+              <Input
+                onChange={(e) =>
+                  setSelectData({ ...selectData, title: e.target.value })
+                }
+              />
+            </div> */}
+            <div>
+              <Label>Section</Label>
+              <Select
+                defaultValue="1"
+                onValueChange={(value) =>
+                  setSubSections({ ...subSections, id: value })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* map section */}
+                  {section &&
+                    section.map((section: any) => (
+                      <SelectItem key={section.id} value={section.id}>
+                        {section.title}
+                      </SelectItem>
+                    ))}
+                  {/* <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">System</SelectItem> */}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Title</Label>
+              <Input
+                onChange={(e) =>
+                  setSubSections({ ...subSections, title: e.target.value })
+                }
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose>
+                <Button type="submit" onClick={handlePostSubSection}>
+                  Add Sub Section
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* <AddSubSubSection /> */}
+
+        <Dialog>
+          <DialogTrigger>
+            <Button variant="outline">Add Sub Section 2</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Are you absolutely sure?</DialogTitle>
+            </DialogHeader>
+
+            {/* <div>
+              <Label>Title</Label>
+              <Input
+                onChange={(e) =>
+                  setSelectData({ ...selectData, title: e.target.value })
+                }
+              />
+            </div> */}
+            <div>
+              <Label>Sub Section</Label>
+              <Select
+                defaultValue="1"
+                onValueChange={(value) =>
+                  setSubSubSections({ ...subSubSections, id: value })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* map section */}
+                  {section &&
+                    section.map((section: any) => {
+                      if (section.subsections) {
+                        return section.subsections.map((section: any) => (
+                          <SelectItem key={section.id} value={section.id}>
+                            {section.title}
+                          </SelectItem>
+                        ));
+                      }
+                    })}
+                  {/* <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">System</SelectItem> */}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Title</Label>
+              <Input
+                onChange={(e) =>
+                  setSubSubSections({
+                    ...subSubSections,
+                    title: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose>
+                <Button type="submit" onClick={handlePostSubSubSection}>
+                  Add Sub Section 2
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* <AddQuestion /> */}
+
         <Dialog>
           <DialogTrigger>
             <Button variant="outline">Add Question</Button>
@@ -284,6 +459,80 @@ function Questions() {
                         {section.title}
                       </SelectItem>
                     ))}
+                  {/* <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">System</SelectItem> */}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Sub Section</Label>
+              <Select
+                defaultValue="1"
+                onValueChange={(value) =>
+                  setQuestionPost({ ...questionPost, subsection: value })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* map section */}
+                  {section &&
+                    section.map((section: any) => {
+                      if (section.subsections) {
+                        return section.subsections.map((section: any) => (
+                          <SelectItem key={section.id} value={section.id}>
+                            {section.title}
+                          </SelectItem>
+                        ));
+                      }
+                    })}
+                  {/* <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">System</SelectItem> */}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Sub Section 2</Label>
+              <Select
+                defaultValue="1"
+                onValueChange={(value) =>
+                  setQuestionPost({ ...questionPost, subsubsection: value })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* map section */}
+                  {section &&
+                    section.map((section: any) => {
+                      if (section.subsections) {
+                        return section.subsections.map((section: any) => {
+                          if (
+                            section.subsubsections &&
+                            section.subsubsections.length > 0
+                          ) {
+                            return section.subsubsections.map(
+                              (section: any) => {
+                                return (
+                                  <SelectItem
+                                    key={section.id}
+                                    value={section.id}
+                                  >
+                                    {section.title}
+                                  </SelectItem>
+                                );
+                              }
+                            );
+                          }
+                        });
+                      }
+                    })}
                   {/* <SelectItem value="light">Light</SelectItem>
                   <SelectItem value="dark">Dark</SelectItem>
                   <SelectItem value="system">System</SelectItem> */}
@@ -343,6 +592,9 @@ function Questions() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Table */}
+
       <Table className="mt-5 h-10">
         <TableCaption>A list of your recent questions.</TableCaption>
         <TableHeader>
@@ -434,6 +686,8 @@ function Questions() {
 }
 
 export default Questions;
+
+// Edit Component
 
 function EditComponent({ open, setOpen, selectedQuestion, sections }: any) {
   const [questionPost, setQuestionPost] = useState({

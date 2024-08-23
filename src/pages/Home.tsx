@@ -11,6 +11,8 @@ import {
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { axiosInstance } from "@/api/base";
+import useSection from "@/store/section";
+import { Button } from "@/components/ui/button";
 
 // const sectionList = [
 //   {
@@ -81,6 +83,14 @@ function Home() {
   const [locationName, setLocationName] = useState("");
   const [section, setSection] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [responseAvailable, setResponseAvailable] = useState(false);
+
+  const showSection = useSection((state: any) => state.setSection);
+
+  useEffect(() => {
+    const responseId = localStorage.getItem("responseId");
+    setResponseAvailable(!!responseId);
+  }, [responseAvailable]);
 
   useEffect(() => {
     // fetch section from django localhost
@@ -149,11 +159,47 @@ function Home() {
   }, [position.latitude, position.longitude]);
 
   const handleSelectChange = (value: any, options: any) => {
-    const selectedOption = options.find(
-      (option: any) => option.title === value
-    );
+    const selectedOption = options.find((option: any) => option.id === value);
     if (selectedOption) {
-      navigate(selectedOption.id);
+      navigate(`form/${selectedOption.id}`);
+      showSection(selectedOption.id);
+    }
+  };
+
+  const handleEndResponse = () => {
+    localStorage.removeItem("responseId");
+    setResponseAvailable(false);
+  };
+
+  const handleClick = async () => {
+    try {
+      // await fetch("http://127.0.0.1:8000/api/question/responses/", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     questionnaire: "1",
+      //     user: "1",
+      //   }),
+      // });
+
+      const response = await axiosInstance.post("question/responses/", {
+        questionnaire: "1",
+        user: "1",
+      });
+
+      const data = await response.data;
+      console.log(data.id, "kol");
+
+      localStorage.setItem("responseId", JSON.stringify(data.id));
+
+      setResponseAvailable(true);
+
+      console.log("Response added successfully");
+      alert("Response added successfully");
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -165,24 +211,59 @@ function Home() {
             <div className="grid gap-3">
               {loading ? (
                 <h3>Loading Sections ...</h3>
+              ) : !responseAvailable ? (
+                <div className="border rounded-lg py-2 px-2">
+                  <Button className="w-full bg-green-500" onClick={handleClick}>
+                    Create Response
+                  </Button>
+                </div>
               ) : (
-                section.map(({ id, title, options }: any) =>
-                  options ? (
+                section.map(({ id, title, subsections }: any) =>
+                  subsections && subsections.length > 0 ? (
                     <Select
                       key={id}
                       onValueChange={(value) =>
-                        handleSelectChange(value, options)
+                        handleSelectChange(value, subsections)
                       }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder={title} />
                       </SelectTrigger>
                       <SelectContent>
-                        {options.map((option: any) => (
-                          <SelectItem key={option.id} value={option.title}>
-                            {option.title}
-                          </SelectItem>
-                        ))}
+                        {subsections.map(
+                          ({
+                            id: subId,
+                            title: subTitle,
+                            subsubsections,
+                          }: any) => (
+                            <div key={subId}>
+                              <SelectItem value={subId}>{subTitle}</SelectItem>
+                              {subsubsections && subsubsections.length > 0 && (
+                                <div className="">
+                                  <Select>
+                                    <SelectTrigger className="w-full mt-2">
+                                      <SelectValue
+                                        placeholder={`Select ${subTitle}`}
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {subsubsections.map(
+                                        (subsubsection: any) => (
+                                          <SelectItem
+                                            key={subsubsection.id}
+                                            value={subsubsection.id}
+                                          >
+                                            {subsubsection.title}
+                                          </SelectItem>
+                                        )
+                                      )}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        )}
                       </SelectContent>
                     </Select>
                   ) : (
@@ -194,11 +275,21 @@ function Home() {
                   )
                 )
               )}
+
+              {responseAvailable && (
+                <div className="border rounded-lg py-2 px-2">
+                  <Button
+                    className="w-full bg-red-500"
+                    onClick={handleEndResponse}
+                  >
+                    End Response
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
         <div className="lg:col-span-2 md:overflow-y-auto md:max-h-[90vh] bg-white py-5 px-1">
-          <div></div>
           <Outlet />
         </div>
         <div className="hidden md:block py-5">
