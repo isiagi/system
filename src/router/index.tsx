@@ -83,8 +83,7 @@ function DynamicProfileForm() {
 function Index() {
   const [section, setSection] = useState([]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [responseAvailable, setResponseAvailable] = useState(false);
 
   useEffect(() => {

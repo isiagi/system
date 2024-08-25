@@ -80,8 +80,8 @@ function Home() {
   const navigate = useNavigate();
 
   const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [locationName, setLocationName] = useState("");
+
+  const [, setLocationName] = useState("");
   const [section, setSection] = useState([]);
   const [loading, setLoading] = useState(false);
   const [responseAvailable, setResponseAvailable] = useState(false);
