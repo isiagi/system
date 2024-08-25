@@ -26,14 +26,22 @@ import { useEffect, useState } from "react";
 //   gps_location: z.string().nonempty("GPS location is required."),
 // });
 
-export function ProfileForm({ formField }: any) {
+export function ProfileForm({ formField, subsectionz }: any) {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const showSection = useSection((state: any) => state.section);
+  const subsection = useSection((state: any) => state.subsection);
+  const resetSection = useSection((state: any) => state.resetSection);
+  const resetSubsection = useSection((state: any) => state.resetSubsection);
 
   console.log(questions);
-  const route = showSection ? "subsections" : "section";
+  const route =
+    subsectionz === "subsection"
+      ? "subsection"
+      : subsectionz === "subsection2"
+      ? "subsection2"
+      : "section";
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -44,6 +52,8 @@ export function ProfileForm({ formField }: any) {
         );
         const data = await response.data;
         setQuestions(data);
+        resetSection();
+        resetSubsection();
         console.log(data, "yyyyyyyyyyyyyyyyy");
       } catch (error) {
         console.log(error);
@@ -53,7 +63,14 @@ export function ProfileForm({ formField }: any) {
     };
 
     fetchQuestions();
-  }, [formField]);
+  }, [
+    formField,
+    route,
+    showSection,
+    subsection,
+    resetSection,
+    resetSubsection,
+  ]);
 
   // const defaultValues = {
   //   activity_date: "",
@@ -97,7 +114,10 @@ export function ProfileForm({ formField }: any) {
     const formattedAnswers = Object.keys(values).map((key) => {
       const { value, type, section, subsection } = values[key];
 
-      const responseId = JSON.parse(localStorage.getItem("responseId"));
+      const storedResponseId = localStorage.getItem("responseId");
+      const responseId: any = storedResponseId
+        ? JSON.parse(storedResponseId)
+        : null;
 
       return {
         response: responseId, // Replace with actual response ID if available
@@ -140,21 +160,23 @@ export function ProfileForm({ formField }: any) {
 
   // console.log(formFields, "formFields");
 
-  const fields = questions.map((question: any) => ({
-    name: `question_${question.id}`, // Unique name for each field
-    label: question.text,
-    type: question.question_type === "input" ? "input" : "radio",
-    options:
-      question.options &&
-      question.options?.map((option: any) => ({
-        label: option,
-        value: option,
-      })), // Only for radio type
-    questionId: question.id?.toString(), // Store the question id
-    // section and subsection
-    section: question.section,
-    subsection: question.subsection,
-  }));
+  const fields =
+    questions &&
+    questions.map((question: any) => ({
+      name: `question_${question.id}`, // Unique name for each field
+      label: question.text,
+      type: question.question_type === "input" ? "input" : "radio",
+      options:
+        question.options &&
+        question.options?.map((option: any) => ({
+          label: option,
+          value: option,
+        })), // Only for radio type
+      questionId: question.id?.toString(), // Store the question id
+      // section and subsection
+      section: question.section,
+      subsection: question.subsection,
+    }));
 
   console.log(fields, "fields");
 

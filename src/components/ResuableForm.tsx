@@ -65,6 +65,7 @@ export function ReusableForm({
           type: field.type,
           section: field.section,
           subsection: field.subsection,
+          subsubsection: field.subsubsection,
         }; // Use questionId as the key
       }
       return acc;

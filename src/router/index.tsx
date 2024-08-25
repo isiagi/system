@@ -57,7 +57,7 @@ import {
 } from "@/components/ui/select";
 
 function DynamicProfileForm() {
-  const { formType } = useParams();
+  const { formType, subsection } = useParams();
 
   // console.log(JSON.stringify(obj), "obj loading...");
 
@@ -77,12 +77,13 @@ function DynamicProfileForm() {
 
   // const formField = formFields;
 
-  return <ProfileForm formField={formType} />;
+  return <ProfileForm formField={formType} subsectionz={subsection} />;
 }
 
 function Index() {
   const [section, setSection] = useState([]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(false);
   const [responseAvailable, setResponseAvailable] = useState(false);
 
@@ -320,6 +321,14 @@ function Index() {
           />
 
           <Route path="/form/:formType" element={<DynamicProfileForm />} />
+          <Route
+            path="/form/:subsection/:formType"
+            element={<DynamicProfileForm />}
+          />
+          <Route
+            path="/form/:subsection2/:formType"
+            element={<DynamicProfileForm />}
+          />
           <Route path="/wash" element={<ProfileForm formField={wash} />} />
           <Route
             path="/household"

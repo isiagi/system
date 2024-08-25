@@ -80,12 +80,14 @@ function Home() {
   const navigate = useNavigate();
 
   const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [locationName, setLocationName] = useState("");
   const [section, setSection] = useState([]);
   const [loading, setLoading] = useState(false);
   const [responseAvailable, setResponseAvailable] = useState(false);
 
   const showSection = useSection((state: any) => state.setSection);
+  const setSubsection = useSection((state: any) => state.setSubsection);
 
   useEffect(() => {
     const responseId = localStorage.getItem("responseId");
@@ -159,10 +161,19 @@ function Home() {
   }, [position.latitude, position.longitude]);
 
   const handleSelectChange = (value: any, options: any) => {
+    if (value === "#") return;
     const selectedOption = options.find((option: any) => option.id === value);
     if (selectedOption) {
-      navigate(`form/${selectedOption.id}`);
+      navigate(`form/subsection/${selectedOption.id}`);
       showSection(selectedOption.id);
+    }
+  };
+
+  const handleSubChange = (value: any, options: any) => {
+    const selectedOption = options.find((option: any) => option.id === value);
+    if (selectedOption) {
+      navigate(`form/subsection2/${selectedOption.id}`);
+      setSubsection(selectedOption.id);
     }
   };
 
@@ -205,7 +216,7 @@ function Home() {
 
   return (
     <div className="">
-      <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-4 lg:gap-8 md:fixed px-5">
+      <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-4 lg:gap-8 md:fixed px-5 w-full">
         <div className="hidden lg:col-span-1 lg:block">
           <div className="py-5">
             <div className="grid gap-3">
@@ -240,7 +251,11 @@ function Home() {
                               <SelectItem value={subId}>{subTitle}</SelectItem>
                               {subsubsections && subsubsections.length > 0 && (
                                 <div className="">
-                                  <Select>
+                                  <Select
+                                    onValueChange={(value) =>
+                                      handleSubChange(value, subsubsections)
+                                    }
+                                  >
                                     <SelectTrigger className="w-full mt-2">
                                       <SelectValue
                                         placeholder={`Select ${subTitle}`}
@@ -289,10 +304,10 @@ function Home() {
             </div>
           </div>
         </div>
-        <div className="lg:col-span-2 md:overflow-y-auto md:max-h-[90vh] bg-white py-5 px-1">
+        <div className="lg:col-span-3 md:overflow-y-auto md:max-h-[90vh] bg-white py-5 px-1">
           <Outlet />
         </div>
-        <div className="hidden md:block py-5">
+        {/* <div className="hidden md:block py-5">
           <h2>My Current Location</h2>
           {position.latitude && position.longitude ? (
             <p className="text-sm">
@@ -304,7 +319,7 @@ function Home() {
 
           <p className="w-[10px] h-[10px] rounded-full bg-green-700" />
           <p className="text-sm">{locationName}</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
