@@ -55,6 +55,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ResponseDetails from "@/pages/ResponseDetails";
 
 function DynamicProfileForm() {
   const { formType, subsection } = useParams();
@@ -311,6 +312,10 @@ function Index() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/questions" element={<Questions />} />
         <Route path="/response" element={<Response />} />
+        <Route
+          path="/responseDetail/:responseId/:username"
+          element={<ResponseDetails />}
+        />
         <Route path="/analytics" element={<Analytics />} />
         <Route element={<Home />}>
           <Route path="/home" element={<Intro />} index />
